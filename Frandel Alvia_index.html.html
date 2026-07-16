@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frandel Alvia — Virtual Assistant | Orders, Inventory & Customer Support</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3F4F0;
+    --paper-2:#EAECE5;
+    --ink:#16283D;
+    --charcoal:#2B2E2B;
+    --amber:#D9A441;
+    --teal:#2F6F62;
+    --line:#D3D6CC;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper);
+    color:var(--charcoal);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 32px;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+
+  /* NAV */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(243,244,240,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.wrap{display:flex; align-items:center; justify-content:space-between; padding-top:18px; padding-bottom:18px;}
+  .brand{font-family:'Fraunces', serif; font-weight:600; font-size:19px; letter-spacing:0.01em; color:var(--ink);}
+  .navlinks{display:flex; gap:32px; font-size:14px;}
+  .navlinks a{text-decoration:none; color:var(--charcoal); position:relative; padding:2px 0; margin-left:32px;}
+  .navlinks a:first-child{margin-left:0;}
+  .navlinks a:hover{color:var(--ink);}
+  .navlinks a:focus-visible, a:focus-visible{outline:2px solid var(--teal); outline-offset:3px;}
+
+  /* HERO */
+  .hero{padding:88px 0 64px;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--teal); margin-bottom:22px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:""; width:7px; height:7px; background:var(--teal); border-radius:50%; display:inline-block;}
+  h1{
+    font-family:'Fraunces', serif; font-weight:600; color:var(--ink);
+    font-size:clamp(38px, 6vw, 64px); line-height:1.03; letter-spacing:-0.01em; max-width:820px;
+  }
+  h1 em{font-style:italic; color:var(--teal); font-weight:500;}
+  .lede{margin-top:24px; max-width:560px; font-size:18px; color:#454940;}
+  .hero-cta{margin-top:34px; display:flex; gap:16px; flex-wrap:wrap;}
+  .btn{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:0.03em;
+    padding:13px 22px; border-radius:2px; text-decoration:none; display:inline-block;
+    border:1px solid var(--ink); transition:all .18s ease;
+  }
+  .btn.primary{background:var(--ink); color:var(--paper);}
+  .btn.primary:hover{background:var(--teal); border-color:var(--teal);}
+  .btn.ghost{color:var(--ink);}
+  .btn.ghost:hover{background:var(--ink); color:var(--paper);}
+
+  /* TRACKER — signature element */
+  .tracker{
+    margin-top:64px; border:1px solid var(--line); background:var(--white);
+    padding:28px 30px 32px;
+  }
+  .tracker-head{
+    display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:#6b6f64; margin-bottom:22px;
+    text-transform:uppercase; letter-spacing:0.08em;
+  }
+  .tracker-head span.id{color:var(--ink); font-weight:500;}
+  .track-line{position:relative; display:flex; justify-content:space-between; padding:0 4px;}
+  .track-line::before{
+    content:""; position:absolute; top:9px; left:14px; right:14px; height:2px; background:var(--line);
+  }
+  .track-line .fill{
+    position:absolute; top:9px; left:14px; height:2px; background:var(--amber);
+    width:0%; animation: fillbar 1.8s 0.3s ease-out forwards;
+  }
+  @keyframes fillbar{ to{ width: calc(100% - 28px); } }
+  .node{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:10px; flex:1;}
+  .dot{
+    width:20px; height:20px; border-radius:50%; background:var(--white); border:2px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-size:11px; color:transparent;
+    transition:all .3s ease;
+  }
+  .node.done .dot{border-color:var(--amber); background:var(--amber); color:var(--white);}
+  .node .label{font-family:'IBM Plex Mono', monospace; font-size:11px; text-align:center; color:#6b6f64; max-width:90px;}
+  .node.done .label{color:var(--ink);}
+  @media (max-width:640px){ .node .label{font-size:9.5px; max-width:64px;} }
+
+  section{padding:76px 0;}
+  .section-head{display:flex; align-items:baseline; gap:16px; margin-bottom:40px;}
+  .section-head .tag{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--teal); letter-spacing:0.1em;}
+  .section-head h2{font-family:'Fraunces', serif; font-weight:600; font-size:clamp(26px,3.4vw,36px); color:var(--ink);}
+  hr.rule{border:none; border-top:1px solid var(--line); margin:0 0 40px;}
+
+  /* ABOUT */
+  .about-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:56px; align-items:start;}
+  .about-grid p{margin-bottom:16px; font-size:16px; color:#3c3f38;}
+  .about-grid p strong{color:var(--ink);}
+  .ledger{border:1px solid var(--line); background:var(--white);}
+  .ledger .row{display:flex; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--line); font-size:14px;}
+  .ledger .row:last-child{border-bottom:none;}
+  .ledger .row span:first-child{color:#6b6f64; font-family:'IBM Plex Mono', monospace; font-size:12px; text-transform:uppercase; letter-spacing:0.06em;}
+  .ledger .row span:last-child{color:var(--ink); font-weight:500; text-align:right;}
+
+  /* SERVICES */
+  .svc-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+  .svc-card{background:var(--paper); padding:30px 26px; transition:background .2s ease;}
+  .svc-card:hover{background:var(--white);}
+  .svc-ref{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--amber); letter-spacing:0.06em; margin-bottom:14px;}
+  .svc-card h3{font-family:'Fraunces', serif; font-size:19px; font-weight:600; color:var(--ink); margin-bottom:10px;}
+  .svc-card p{font-size:14.5px; color:#565a51;}
+  @media (max-width:800px){ .svc-grid{grid-template-columns:1fr;} .about-grid{grid-template-columns:1fr;} }
+
+  /* PROJECTS */
+  .project-note{font-size:14px; color:#6b6f64; margin-bottom:36px; max-width:640px;}
+  .project-note strong{color:var(--ink);}
+  .case{border:1px solid var(--line); background:var(--white); margin-bottom:1px; padding:32px 30px;}
+  .case-top{display:flex; justify-content:space-between; align-items:flex-start; gap:20px; flex-wrap:wrap; margin-bottom:18px;}
+  .case-top h3{font-family:'Fraunces', serif; font-weight:600; font-size:22px; color:var(--ink);}
+  .stamp{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--teal); border:1px solid var(--teal); padding:5px 10px; white-space:nowrap;
+  }
+  .case-body{display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:18px;}
+  .case-col .k{font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--amber); margin-bottom:8px;}
+  .case-col p{font-size:14.5px; color:#3c3f38;}
+  .case-tools{margin-top:20px; display:flex; gap:8px; flex-wrap:wrap;}
+  .pill{font-family:'IBM Plex Mono', monospace; font-size:11.5px; background:var(--paper-2); padding:5px 11px; color:var(--ink);}
+  @media (max-width:700px){ .case-body{grid-template-columns:1fr;} }
+
+  /* TOOLS */
+  .tools-row{display:flex; flex-wrap:wrap; gap:10px;}
+  .tool-pill{font-family:'IBM Plex Mono', monospace; font-size:13px; border:1px solid var(--line); background:var(--white); padding:9px 16px; color:var(--ink);}
+
+  /* CONTACT / FOOTER */
+  footer{background:var(--ink); color:var(--paper); padding:64px 0 40px;}
+  footer h2{font-family:'Fraunces', serif; font-weight:600; font-size:clamp(28px,4vw,42px); margin-bottom:18px;}
+  footer p.lede-f{color:#C7CEC2; max-width:480px; margin-bottom:30px; font-size:16px;}
+  .contact-row{display:flex; flex-wrap:wrap; gap:28px; margin-bottom:40px;}
+  .contact-row a{
+    font-family:'IBM Plex Mono', monospace; font-size:14px; text-decoration:none; color:var(--paper);
+    border-bottom:1px solid rgba(243,244,240,0.35); padding-bottom:4px;
+  }
+  .contact-row a:hover{border-color:var(--amber); color:var(--amber);}
+  .foot-bottom{display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; padding-top:26px; border-top:1px solid rgba(243,244,240,0.18); font-size:12.5px; color:#8D958A; font-family:'IBM Plex Mono', monospace;}
+
+  @media (prefers-reduced-motion: reduce){
+    .track-line .fill{animation:none; width:calc(100% - 28px);}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="brand">Frandel Alvia</div>
+    <div class="navlinks">
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#projects">Projects</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero wrap">
+  <div class="eyebrow">Available for new clients — remote, full-time</div>
+  <h1>Orders get placed.<br>I make sure they <em>arrive</em> right.</h1>
+  <p class="lede">Virtual Assistant specializing in order processing, inventory tracking, and customer support — built on 11 years of keeping high-volume accounts accurate, one verified detail at a time.</p>
+  <div class="hero-cta">
+    <a class="btn primary" href="#projects">See sample work</a>
+    <a class="btn ghost" href="#contact">Get in touch</a>
+  </div>
+
+  <div class="tracker">
+    <div class="tracker-head">
+      <span><span class="id">REF #FA-2026</span> — a typical order, start to finish</span>
+      <span>Status: Delivered</span>
+    </div>
+    <div class="track-line">
+      <div class="fill"></div>
+      <div class="node done"><div class="dot">✓</div><div class="label">Order<br>Received</div></div>
+      <div class="node done"><div class="dot">✓</div><div class="label">Stock<br>Verified</div></div>
+      <div class="node done"><div class="dot">✓</div><div class="label">CRM<br>Updated</div></div>
+      <div class="node done"><div class="dot">✓</div><div class="label">Customer<br>Notified</div></div>
+      <div class="node done"><div class="dot">✓</div><div class="label">Delivered</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">01 — ABOUT</span><h2>New to VA work. Not new to the work itself.</h2></div>
+    <hr class="rule">
+    <div class="about-grid">
+      <div>
+        <p>I'm <strong>Frandel</strong>, an order management and customer support specialist based in Imus, Philippines, now building a career as an independent Virtual Assistant.</p>
+        <p>For 11 years I worked on the backend of a major telecom account — processing orders, auditing transactions, tracking devices against stock, and keeping CRM records clean enough that nothing fell through the cracks. It's the same job a good VA does for a small business: order accuracy, inventory awareness, and a customer who always knows where their order stands.</p>
+        <p>I'm new to freelancing, but not to the responsibility. The sample projects below are practice work I built to show exactly how I'd approach a real client's order and support workflow.</p>
+      </div>
+      <div class="ledger">
+        <div class="row"><span>Location</span><span>Imus, PH (GMT+8)</span></div>
+        <div class="row"><span>Experience</span><span>11 yrs, order &amp; CX ops</span></div>
+        <div class="row"><span>Availability</span><span>Full-time, remote</span></div>
+        <div class="row"><span>Core tools</span><span>Google Workspace, CRM</span></div>
+        <div class="row"><span>Response time</span><span>Same business day</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="services" style="background:var(--paper-2);">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">02 — SERVICES</span><h2>Where I plug in</h2></div>
+    <hr class="rule" style="border-color:var(--line);">
+    <div class="svc-grid">
+      <div class="svc-card">
+        <div class="svc-ref">SVC-01</div>
+        <h3>Sales Order Processing</h3>
+        <p>Order intake, verification against stock, and follow-through so nothing ships wrong or late.</p>
+      </div>
+      <div class="svc-card">
+        <div class="svc-ref">SVC-02</div>
+        <h3>Inventory &amp; Stock Tracking</h3>
+        <p>Cross-checking stock levels against demand and flagging gaps before they become backorders.</p>
+      </div>
+      <div class="svc-card">
+        <div class="svc-ref">SVC-03</div>
+        <h3>Customer Support</h3>
+        <p>Email, ticket, and phone support — status updates, troubleshooting, and calm follow-up.</p>
+      </div>
+      <div class="svc-card">
+        <div class="svc-ref">SVC-04</div>
+        <h3>CRM &amp; Data Entry</h3>
+        <p>Clean, accurate records — the kind that hold up when someone else has to pick up the account.</p>
+      </div>
+      <div class="svc-card">
+        <div class="svc-ref">SVC-05</div>
+        <h3>Inbox &amp; Calendar Management</h3>
+        <p>Triaging email, scheduling, and keeping the day organized so priorities stay visible.</p>
+      </div>
+      <div class="svc-card">
+        <div class="svc-ref">SVC-06</div>
+        <h3>Process Documentation</h3>
+        <p>Turning repeat tasks into simple SOPs so workflows survive beyond one person's memory.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">03 — SAMPLE WORK</span><h2>Practice projects</h2></div>
+    <hr class="rule">
+    <p class="project-note"><strong>A note on these:</strong> I'm early in my VA career, so these are self-directed practice projects built around realistic small-business scenarios — not paid client engagements. They're here to show how I'd actually handle the work.</p>
+
+    <div class="case">
+      <div class="case-top">
+        <h3>Order tracker for a small online supply shop</h3>
+        <span class="stamp">Practice Project</span>
+      </div>
+      <div class="case-body">
+        <div class="case-col"><div class="k">Scenario</div><p>A fictional shop, Coastal Supply Co., needed a simple way to track orders from "placed" to "delivered" without expensive software.</p></div>
+        <div class="case-col"><div class="k">What I built</div><p>A Google Sheets order tracker with status columns, conditional formatting for overdue orders, and a matching intake form.</p></div>
+        <div class="case-col"><div class="k">Outcome</div><p>Reduced the manual back-and-forth of "where's my order" into a single glance-able view, updatable in under a minute per order.</p></div>
+      </div>
+      <div class="case-tools"><span class="pill">Google Sheets</span><span class="pill">Google Forms</span><span class="pill">Order Tracking</span></div>
+    </div>
+
+    <div class="case">
+      <div class="case-top">
+        <h3>CRM clean-up &amp; deduplication</h3>
+        <span class="stamp">Practice Project</span>
+      </div>
+      <div class="case-body">
+        <div class="case-col"><div class="k">Scenario</div><p>A mock customer list of 300 sample contacts with duplicate entries, missing fields, and inconsistent formatting.</p></div>
+        <div class="case-col"><div class="k">What I built</div><p>Standardized fields, merged duplicate records, and set up a data-entry template to prevent the same drift going forward.</p></div>
+        <div class="case-col"><div class="k">Outcome</div><p>Cut the sample list down to clean, unique records with a documented format anyone on the team could follow.</p></div>
+      </div>
+      <div class="case-tools"><span class="pill">Google Sheets</span><span class="pill">Data Entry</span><span class="pill">CRM Hygiene</span></div>
+    </div>
+
+    <div class="case">
+      <div class="case-top">
+        <h3>Customer email &amp; FAQ templates</h3>
+        <span class="stamp">Practice Project</span>
+      </div>
+      <div class="case-body">
+        <div class="case-col"><div class="k">Scenario</div><p>A small shop fielding the same order-status and shipping questions on repeat, with no templates in place.</p></div>
+        <div class="case-col"><div class="k">What I built</div><p>A set of clear, friendly reply templates for order status, delays, and returns, plus a short internal FAQ doc.</p></div>
+        <div class="case-col"><div class="k">Outcome</div><p>Turned a 10-minute custom reply into a 2-minute personalized one, without sounding canned.</p></div>
+      </div>
+      <div class="case-tools"><span class="pill">Google Docs</span><span class="pill">Customer Support</span><span class="pill">Email Templates</span></div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--paper-2);">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">04 — TOOLS</span><h2>What I work in</h2></div>
+    <hr class="rule" style="border-color:var(--line);">
+    <div class="tools-row">
+      <span class="tool-pill">Google Workspace</span>
+      <span class="tool-pill">Microsoft Office</span>
+      <span class="tool-pill">CRM Systems</span>
+      <span class="tool-pill">Shopify</span>
+      <span class="tool-pill">Notion</span>
+      <span class="tool-pill">Zoom</span>
+      <span class="tool-pill">Dropbox</span>
+      <span class="tool-pill">LastPass</span>
+      <span class="tool-pill">Canva</span>
+    </div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <h2>Let's talk about your workflow.</h2>
+    <p class="lede-f">If your orders, inventory, or inbox need someone who double-checks things before they become a problem — I'd like to hear about it.</p>
+    <div class="contact-row">
+      <a href="mailto:frandel.alvia@gmail.com">frandel.alvia@gmail.com</a>
+      <a href="tel:+639215552957">+63 921 555 2957</a>
+      <a href="#about">Imus, Philippines · GMT+8</a>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Frandel Alvia</span>
+      <span>Available for full-time remote roles</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
